@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/gridstack@9.2.1/dist/gridstack.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    
+
+    <div class="grid-stack">
+        <div class="grid-stack-item" gs-x="0" gs-y="0" gs-w="12" gs-h="4">
+            <div class="grid-stack-item-content">
+                <div id="myGrid" style="height: 1400px">
+                    <div style="margin: 10px 0">
+                        <button class="btn" onclick="onBtnExport()">Export CSV</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="grid-stack-item" gs-x="0" gs-y="5" gs-w="12" gs-h="4">
+            <div class="grid-stack-item-content">
+                <div id="myChart"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/gridstack@9.2.1/dist/gridstack-all.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ag-charts-community/dist/umd/ag-charts-community.js"></script>
+    <script src="js/plugin.js"></script>
+</body>
+</html>

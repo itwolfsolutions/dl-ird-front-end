@@ -1,0 +1,12 @@
+.grid-stack-item {
+    box-shadow: 0 0 10px #000;
+    margin: 10px 0;
+}
+
+.btn {
+    background: #001B71;
+    color: #fff;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 3px;
+}
