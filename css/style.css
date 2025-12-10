@@ -3,8 +3,13 @@
     margin: 10px 0;
 }
 
-.btn {
+.ag-header-row-column {
     background: #001B71;
+    color: #fff;
+}
+
+.btn {
+    background: #5ABD4E;
     color: #fff;
     padding: 8px 16px;
     border: none;
