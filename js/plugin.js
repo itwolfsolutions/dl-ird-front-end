@@ -42,13 +42,24 @@ const rateNameObj = {
     "USDMXP FT0": {name: "USD/MXN", type: "Foreign Exchange"},
 };
 
-let gridApi;
+let gridApi, myChart;
+const availableFreqCharts = ['week', 'month', 'year', '3-years'];
+const baseUrl = 'http://127.0.0.1:8001/';
+let currentFreqChart = 'week';
+let currentFreqRate = '';
+let chartsData = {};
 
 const gridOptions = {
     columnDefs: [
         {headerName: "", field: "type", flex: 3, spanRows: true, sortable: false},
-        {headerName: "", field: "rate", flex: 2, filter: true},
-        {headerName: '9-Dec-2025', field: "today"},
+        {headerName: "", field: "rate", flex: 2, filter: true,
+            cellRenderer: params => {
+                return `<div class="rate-name" id="${params.data['rate-name']}">
+                ${params.value}
+                </div>`;
+            }
+        },
+        {headerName: 'today', field: "today"},
         {headerName: "Yest", field: "yesterday"},
         {headerName: "Chg", field: "chg-yesterday"},
         {headerName: "Last Week", field: "last-week"},
@@ -67,10 +78,9 @@ const gridOptions = {
     popupParent: document.body
 };
 
-// setup the grid after the page has finished loading
 document.addEventListener("DOMContentLoaded", function () {
-    const url = "http://127.0.0.1:8001/current/rates";
-    fetch(url)
+    const currentRateUrl = baseUrl + "current/rates";
+    fetch(currentRateUrl)
         .then((response) => response.json())
         .then((data) => {
             const sortedResponse = data.sort((a, b) => {
@@ -94,6 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 rowData.push({
                     "type": rateNameObj[rate.name]['type'],
                     "rate": rateName,
+                    "rate-name": rate.name,
                     "today": formatValue(rate['current_value'], rateName),
                     "yesterday": formatValue(rate['yesterday_value'], rateName),
                     "chg-yesterday": formatValue(rate['change_yesterday'], rateName),
@@ -106,39 +117,111 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             }
 
-            function formatValue(value, rateName) {
-                const notPercentageValue = ['Dow Industrial Avg.', 'S&P 500', 'USD/EUR', 'USD/JPY', 'USD/GBP', 'USD/MXN'];
-                if (notPercentageValue.includes(rateName)) {
-                    return value === null ? '-' : (value).toLocaleString();
-                }
-                return value === null ? '-' : (value * 100).toFixed(2) + '%';
-            }
-
             gridOptions['rowData'] = rowData;
             gridOptions['columnDefs'][2]['headerName'] = today;
             const gridDiv = document.querySelector("#myGrid");
             gridApi = agGrid.createGrid(gridDiv, gridOptions);
+            setTimeout(function () {
+                $(".ag-row:first-of-type").click();
+            }, 100);
         });
+
+
+    const ctx = document.getElementById('myChart');
+    myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: '',
+                data: [],
+                borderWidth: 2,
+                fill: 'start'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
 });
 
 
-const {AgCharts} = agCharts;
+$(document).on("click", ".ag-row", function () {
+    $(this).siblings().removeClass('active');
+    $(this).addClass('active');
 
-// Chart Options
-const options = {
-    container: document.getElementById("myChart"), // Container: HTML Element to hold the chart
-    // Data: Data to be displayed in the chart
-    data: [
-        {month: "Jan", avgTemp: 2.3, iceCreamSales: 162000},
-        {month: "Mar", avgTemp: 6.3, iceCreamSales: 302000},
-        {month: "May", avgTemp: 16.2, iceCreamSales: 800000},
-        {month: "Jul", avgTemp: 22.8, iceCreamSales: 1254000},
-        {month: "Sep", avgTemp: 14.5, iceCreamSales: 950000},
-        {month: "Nov", avgTemp: 8.9, iceCreamSales: 200000},
-    ],
-    // Series: Defines which chart type and data to use
-    series: [{type: "bar", xKey: "month", yKey: "iceCreamSales"}],
-};
+    const rateName = $(this).find(".rate-name").attr('id');
+    if (rateNameObj[rateName]) {
+        const rateUrl = baseUrl + "rates?name=" + rateName;
+        currentFreqRate = rateName;
+        if (chartsData[currentFreqRate]) {
+            updateChart(chartsData[currentFreqRate]);
+        } else {
+            fetch(rateUrl)
+                .then((response) => response.json())
+                .then((data) => {
+                    chartsData[rateName] = data;
+                    updateChart(data);
+                });
+        }
+    }
+})
 
-// Create Chart
-AgCharts.create(options);
+$(".btn-group .btn-item").click(function () {
+    $(this).siblings().removeClass('active');
+    $(this).addClass('active');
+    if (availableFreqCharts.includes($(this).data('value'))) {
+        currentFreqChart = $(this).data('value');
+        updateChart(chartsData[currentFreqRate]);
+    }
+});
+
+
+function formatValue(value, rateName) {
+    const notPercentageValue = ['Dow Industrial Avg.', 'S&P 500', 'USD/EUR', 'USD/JPY', 'USD/GBP', 'USD/MXN'];
+    if (notPercentageValue.includes(rateName)) {
+        return value === null ? '-' : (value).toLocaleString();
+    }
+    return value === null ? '-' : (value * 100).toFixed(2) + '%';
+}
+
+function updateChart(data) {
+    let chartData = data;
+    if (currentFreqChart === 'week') {
+        chartData = data.slice(-7);
+        myChart.options.scales.x.ticks = {
+            callback: function(val, index) {
+                return chartData[index]['rate_date'];
+            }
+        }
+    } else if (currentFreqChart === 'month') {
+        chartData = data.slice(-30);
+        myChart.options.scales.x.ticks = {
+            callback: function(val, index) {
+                return index % 7 === 0 ? chartData[index]['rate_date'] : '';
+            }
+        }
+    } else if (currentFreqChart === 'year') {
+        chartData = data.slice(-365);
+        myChart.options.scales.x.ticks = {
+            callback: function(val, index) {
+                return index % 10 === 0 ? chartData[index]['rate_date'] : '';
+            }
+        }
+    } else {
+        myChart.options.scales.x.ticks = {
+            callback: function(val, index) {
+                return index % 30 === 0 ? chartData[index]['rate_date'] : '';
+            }
+        }
+    }
+
+    myChart.data.labels = chartData.map(item => item['rate_date']);
+    if (myChart.data.datasets.length > 0) {
+        myChart.data.datasets[0].label = rateNameObj[currentFreqRate]['name'];
+        myChart.data.datasets[0].data = chartData.map(item => item['interest_rate']);
+    }
+
+    myChart.update();
+}

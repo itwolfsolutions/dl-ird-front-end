@@ -11,7 +11,7 @@
     
 
     <div class="grid-stack">
-        <div class="grid-stack-item" gs-x="0" gs-y="0" gs-w="12" gs-h="15">
+        <div class="grid-stack-item" gs-x="0" gs-y="5" gs-w="12" gs-h="15">
             <div class="grid-stack-item-content">
                 <div id="myGrid" style="height: 1400px">
                     <div style="margin: 10px 0">
@@ -22,17 +22,24 @@
         </div>
 
 
-        <div class="grid-stack-item" gs-x="0" gs-y="16" gs-w="12" gs-h="4">
+        <div class="grid-stack-item" gs-x="0" gs-y="0" gs-w="12" gs-h="4">
             <div class="grid-stack-item-content">
-                <div id="myChart"></div>
+                <canvas id="myChart"></canvas>
+                <div class="btn-group">
+                    <button data-value="week" class="btn-item active">1 Week</button>
+                    <button data-value="month" class="btn-item">1 Month</button>
+                    <button data-value="year" class="btn-item">1 Year</button>
+                    <button data-value="3-years" class="btn-item">3 Year</button>
+                </div>
             </div>
         </div>
     </div>
 
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gridstack@9.2.1/dist/gridstack-all.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ag-charts-community/dist/umd/ag-charts-community.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/plugin.js"></script>
 </body>
 </html>

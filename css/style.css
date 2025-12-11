@@ -15,3 +15,42 @@
     border: none;
     border-radius: 3px;
 }
+
+.ag-row {
+    cursor: pointer;
+}
+
+.ag-row.active {
+    background: #0637d1;
+    color: #fff;
+}
+
+.btn-group {
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+    border: 2px solid #001B71;
+    border-radius: 3px;
+}
+
+.btn-group .btn-item {
+    display: block;
+    width: 100%;
+    border-radius: 0;
+    background: #001B71;
+    color: #fff;
+    border: none;
+    outline: none;
+    padding: 10px;
+    cursor: pointer;
+    transition: 0.5s all ease;
+}
+
+.btn-group .btn-item:hover {
+    background: #021349;
+}
+
+.btn-group .btn-item.active {
+    background: #fff;
+    color: #001B71;
+}
